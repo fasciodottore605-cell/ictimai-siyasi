@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İctimai-siyasi hazırlıq — Tədris və Test Proqramı</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .perspective-1200 {
+      perspective: 1200px;
+    }
+
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    .card-transition {
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.55);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 antialiased selection:bg-blue-600 selection:text-white">
+  <div id="app" class="min-h-screen flex flex-col"></div>
+
+  <script>
+    /**
+     * İctimai-siyasi hazırlıq üzrə test imtahanlarının sualları
+     * Şəkillərdən (1-84, 85-130, 131-150, 151-185, 186-226, 227-255) dəqiq köçürülmüş sual-cavab bazası.
+     * Qeyd: Şəkildə boş/cavabsız olan 236 və 244 nömrəli suallar olduğu kimi qeyd olunub, uydurma cavab əlavə edilməyib.
+     */
+    const QUESTIONS_DATA = [
+      { id: 1, q: "Milli Qvardiya neçənci ildə yaradılmışdır?", a: "25 dekabr 1991", cat: "Milli Qvardiya və PTX" },
+      { id: 2, q: "Milli Qvardiya ilk dəfə hansı ölkədə yaranmışdır?", a: "Fransa (Paris)", cat: "Milli Qvardiya və PTX" },
+      { id: 3, q: "AR-nın Prezidentinin Fərmanı ilə (ölümündən sonra) PTX-nin hansı hərbi qulluqçusu Azərbaycanın Milli Qəhrəmanı adına layiq görülmüşdür?", a: "Əfqan Hüseynov", cat: "Milli Qvardiya və PTX" },
+      { id: 4, q: "AR-nın Prezidentinin Fərmanı ilə (ölümündən sonra) MQ-nın hansı hərbi qulluqçusu «Hərbi xidmətə görə» medalı ilə təltif olunmuşdur?", a: "Camal Hacıəliyev", cat: "Milli Qvardiya və PTX" },
+      { id: 5, q: "Azərbaycan Respublikasının ərazi bütövlüyü uğrunda gedən döyüşlərdə Prezident Təhlükəsizlik Xidmətinin neçə hərbi qulluqçusu şəhid olub və itgin düşüb?", a: "13 şəhid 21 itgin", cat: "Milli Qvardiya və PTX" },
+      { id: 6, q: "Azərbaycan Respublikası Ali Dövlət Hakimiyyət və İdarəetmə Orqanlarının Baş mühafizə İdarəsi nə vaxt yaradılmışdır?", a: "23 avqust 1993", cat: "Milli Qvardiya və PTX" },
+      { id: 7, q: "Azərbaycan Respublikası Ali Dövlət Hakimiyyət və İdarəetmə Orqanlarının Baş mühafizə İdarəsi nə vaxt Azərbaycan Respublikası Xüsusi Dövlət Mühafizə Xidməti adlandırılmışdır?", a: "6 may 2002 ci il", cat: "Milli Qvardiya və PTX" },
+      { id: 8, q: "Azərbaycan Respublikası Xüsusi Dövlət Mühafizə Xidmətinin əsasnaməsi nə vaxt təsdiq edilmişdir?", a: "31 may 2003 cü il № 873 fərmanla", cat: "Milli Qvardiya və PTX" },
+      { id: 9, q: "Azərbaycan Respublikası Xüsusi Dövlət Mühafizə Xidməti nə vaxt Azərbaycan Respublikası Prezidentinin Təhlükəsizlik Xidməti adlandırılmışdır?", a: "16 mart 2020", cat: "Milli Qvardiya və PTX" },
+      { id: 10, q: "Azərbaycan Respublikası Prezidentinin Təhlükəsizlik Xidmətinin tərkibində nə vaxt İxrac Neft Qaz Boru Kəmərlərinin Təhlükəsizliyi İdarəsi yaradılmışdır?", a: "31 may 2003 cü i", cat: "Milli Qvardiya və PTX" },
+      { id: 11, q: "Azərbaycan Respublikası Prezidentinin Təhlükəsizlik Xidmətinin tərkibində nə vaxt Xüsusi Rabitə və İnformasiya Təhlükəsizliyi Dövlət Agentliyi yaradılmışdır?", a: "26 sentyabr 2012 (708 saylı fərman)", cat: "Milli Qvardiya və PTX" },
+      { id: 12, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin şəxsi heyəti ilə görüş keçirmiş və «Heydər Əliyev» muzeyinin açılışında iştirak etmişdir?", a: "05 oktyabr 2005", cat: "Milli Qvardiya və PTX" },
+      { id: 13, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin Təlim Tədris Mərkəzinin açılışında iştirak etmişdir?", a: "30 oktyabr 2007", cat: "Milli Qvardiya və PTX" },
+      { id: 14, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin İNQBKTI-nin Yevlax RŞ-nin şəxsi heyəti üçün tikilmiş xidməti yaşayış binasının açılışında iştirak etmişdir?", a: "2 mart 2009", cat: "Milli Qvardiya və PTX" },
+      { id: 15, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin «Helikopter meydançasının» açılışında iştirak etmişdir?", a: "10 noyabr 2009", cat: "Milli Qvardiya və PTX" },
+      { id: 16, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin Xüsusi Rabitə və İnformasiya Təhlükəsizliyi Departamentinin açılışında iştirak etmişdir?", a: "16 mart 2010", cat: "Milli Qvardiya və PTX" },
+      { id: 17, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin Müalicə-Diaqnostika Mərkəzinin açılışında iştirak etmişdir?", a: "04 iyul 2011", cat: "Milli Qvardiya və PTX" },
+      { id: 18, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev hansı tarixdə PTX-nin hərbi şəhərciyinin idman kompleksinin açılışında iştirak etmişdir?", a: "18 yanvar 2014", cat: "Milli Qvardiya və PTX" },
+      { id: 19, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev hansı tarixdə Milli Qvardiyada ilk dəfə PTX-nin şəxsi heyəti ilə görüşmüşdür?", a: "28 may 1994", cat: "Milli Qvardiya və PTX" },
+      { id: 20, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev hansı tarixdə ikinci dəfə Milli Qəhrəman Əfqan Hüseynovun büstünün açılışı münasibəti ilə Milli Qvardiyada PTX-nin şəxsi heyəti ilə görüşmüşdür?", a: "28 may 1995", cat: "Milli Qvardiya və PTX" },
+      { id: 21, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev hansı tarixdə üçüncü dəfə Milli Qvardiyada PTX-nin şəxsi heyəti ilə görüşmüşdür?", a: "25 dekabr 1996", cat: "Milli Qvardiya və PTX" },
+      { id: 22, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev hansı tarixdə dördüncü dəfə Milli Qvardiyada PTX-nin şəxsi heyəti ilə görüşmüşdür?", a: "28 may 1998", cat: "Milli Qvardiya və PTX" },
+      { id: 23, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt anadan olmuşdur?", a: "10 may 1923", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 24, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt Azərbaycan SSR Dövlət Təhlükəsizliyi Komitəsinin sədri təyin edilmişdir?", a: "22 iyun 1967", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 25, q: "H.Əliyevin keçirdiyi hansı əməliyyat SSRİ DTK-sı tərəfindən xüsusi təlimat kimi çap olunaraq bütün çekist tədris müəssisələrinə dərs vəsaiti olaraq göndərilmişdir?", a: "Duel əməliyyatı", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 26, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt Azərbaycan SSR Kommunist Partiyasının birinci katibi seçilmişdir?", a: "14 iyul 1969", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 27, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində birinci dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "03 oktyabr 1993", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 28, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində ikinci dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "11 oktyabr 1998", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 29, q: "Ümummilli lider Heydər Əlirza oğlu Əliyev nə vaxt vəfat edib?", a: "12 dekabr 2003", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 30, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev nə vaxt anadan olmuşdur?", a: "24 dekabr 1961", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 31, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində 1-ci dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "15 oktyabr 2003", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 32, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində 2-ci dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "15 oktyabr 2008", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 33, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində 3-cü dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "09 oktyabr 2013", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 34, q: "Azərbaycan Respublikasının Prezidenti İlham Heydər oğlu Əliyev nə vaxt ümumxalq səsverməsi nəticəsində 4-cü dəfə Azərbaycan Respublikasının Prezidenti seçilmişdir?", a: "11 aprel 2018", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 35, q: "Müstəqil Azərbaycanın ilk Konstitusiyası hansı tarixdə qəbul edilmişdir?", a: "12 noyabr 1995", cat: "Konstitusiya və hüquq" },
+      { id: 36, q: "Azərbaycan Respublikasının 1ci vitse prezidenti kimdir və nə vaxt təyin olunmuşdur?", a: "Mehriban Əliyeva  21 fevral 2017 ci il.", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 37, q: "Azərbaycan Respublikasının baş naziri kimdir və nə vaxt təyin olunmuşdur?", a: "Əli Əsədov   28 oktyabr 2019 cu il.", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 38, q: "Azərbaycan Respublikasının Milli Məclisinin sədri kimdir və nə vaxt təyin olunmuşdur?", a: "Sahibə Qafarova 9 fevral 2020 ci il.", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 39, q: "Azərbaycan Respublikasının Müdafiə naziri kimdir və nə vaxt təyin olunmuşdur?", a: "Zakir Həsənov 22 oktyabr 2013", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 40, q: "Azərbaycan Respublikasının Daxili işlər naziri kimdir və nə vaxt təyin olunmuşdur?", a: "Vilayət Eyvazov 20 iyun 2019", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 41, q: "Azərbaycan Respublikasının Konstitusiyasına görə dövlət hakimiyyətinin yeganə mənbəyi?", a: "Xalqdır", cat: "Konstitusiya və hüquq" },
+      { id: 42, q: "Azərbaycan Respublikasının Konstitusiyasına görə Azərbaycan dövlətinin başçısı kimdir?", a: "Prezident", cat: "Konstitusiya və hüquq" },
+      { id: 43, q: "Azərbaycan Respublikasının Konstitusiyasına görə Qanunvericilik hakimiyyətini hansı dövlət qurumu həyata keçirir?", a: "Milli Məclis", cat: "Konstitusiya və hüquq" },
+      { id: 44, q: "Azərbaycan Respublikasının Konstitusiyasına görə Azərbaycan Respublikasında hakimiyyət bölgüsü necədir?", a: "Qanunvericilik,icraedici və məhkəmə", cat: "Konstitusiya və hüquq" },
+      { id: 45, q: "Azərbaycan Respublikasının Konstitusiyasına görə Azərbaycan Respublikasında hansı mülkiyyət növləri var?", a: "Dövlət mülk,Xüsusi mülk,Bələdiyyə", cat: "Konstitusiya və hüquq" },
+      { id: 46, q: "Azərbaycan Respublikasının Konstitusiyasına görə Azərbaycan dövlətinin əsasları?", a: "Azərbaycan dövləti demokratik,hüquqi,dünyəvi,unitar respublikadır", cat: "Konstitusiya və hüquq" },
+      { id: 47, q: "Azərbaycan Respublikasının Konstitusiyasına görə Silahlı Qüvvələr hansı məqsədlə yaradılır?", a: "A.R-nın təhlükəsizliyini və müdafiəsini təmin etmək məqsədi ilə", cat: "Konstitusiya və hüquq" },
+      { id: 48, q: "Azərbaycan Respublikasının Konstitusiyası neçə bölmə, fəsil və maddədən ibarətdir?", a: "5 bölmə,12 fəsil,158 maddə", cat: "Konstitusiya və hüquq" },
+      { id: 49, q: "Azərbaycan Respublikasının Konstitusiyasının 158 maddəsindən neçəsi insan hüquqlarına aid edilib?", a: "48 maddəsi", cat: "Konstitusiya və hüquq" },
+      { id: 50, q: "Azərbaycan Respublikasının Konstitusiyasına dəyişikliklər hansı yolla edilə bilər?", a: "Ümumxalq səsverməsi ilə referendumla", cat: "Konstitusiya və hüquq" },
+      { id: 51, q: "Azərbaycan Respublikasının Konstitusiyasına Referendumla hansı tarixlərdə dəyişikliklər və əlavələr edilmişdir?", a: "24 avqust 2002, 18 mart 2009, 18 iyul 2016", cat: "Konstitusiya və hüquq" },
+      { id: 52, q: "Azərbaycan Respublikasının Konstitusiyasının hansı maddəsinə əsasən ölkə Prezidenti və onun ailəsi dövlət hesabına təmin edilir?", a: "108-ci maddə", cat: "Konstitusiya və hüquq" },
+      { id: 53, q: "Azərbaycan Respublikasının Konstitusiyasına görə hansı hallarda Azərbaycan vətəndaşı vətəndaşlıqdan məhrum edilə bilər?", a: "Heç bir halda edilə bilməz", cat: "Konstitusiya və hüquq" },
+      { id: 54, q: "Azərbaycan Respublikasının Konstitusiyasına görə h/qulluqçuların hansı hüququ məhdudlaşdırılır?", a: "Tətil etmək", cat: "Konstitusiya və hüquq" },
+      { id: 55, q: "«Müstəqillik» hansı tarixə qeyd olunur?", a: "28 may", cat: "Tarix və əlamətdar günlər" },
+      { id: 56, q: "«Müstəqilliyin bərpa edilməsi günü » hansı tarixdə qeyd olunur?", a: "18 oktyabr", cat: "Tarix və əlamətdar günlər" },
+      { id: 57, q: "Azərbaycan Xalq Cümhuriyyətinin yaranması neçə ay çəkib?", a: "23 ay", cat: "AXC və tarix" },
+      { id: 58, q: "Azərbaycanda dövlət səviyyəsində mühafizə xidmətinin qurulması ilk dəfə hansı illərdə başlanmışdır?", a: "1918-1920", cat: "AXC və tarix" },
+      { id: 59, q: "Azərbaycan Xalq Cümhuriyyətinin Milli Şurasının ilk iclasında qəbul edilmiş hansı sənəddə Azərbaycan Xalq Cümhuriyyətinin quruluşunun fundamental prinsipləri elan edilmişdir?", a: "İstiqlal bəyannaməsi", cat: "AXC və tarix" },
+      { id: 60, q: "Azərbaycan Xalq Cümhuriyyətinin Milli Şurasının ilk iclasına kim sədrlik edirdi?", a: "M.Ə.Rəsulzadə", cat: "AXC və tarix" },
+      { id: 61, q: "Azərbaycan Xalq Cümhuriyyətinin Parlamentinin sədri?", a: "Ə.Topçubaşov", cat: "AXC və tarix" },
+      { id: 62, q: "Çar Rusiyası ordusunda qulluq etmiş azərbaycanlı generallar hansılardır?", a: "Süleyman bəy Sulkeviç,İbrahim ağa Usubov,Teymur bəy Novruzov", cat: "AXC və tarix" },
+      { id: 63, q: "Azərbaycan Xalq Cümhuriyyətinin Nazirlər Şurasının ilk sədri kim olmuşdur?", a: "F.X.Xoyski", cat: "AXC və tarix" },
+      { id: 64, q: "1918-ci ildə Azərbaycan Xalq Cümhuriyyətinin Hərbi naziri kim olmuşdur?", a: "Səməd bəy Mehmandarov", cat: "AXC və tarix" },
+      { id: 65, q: "1918-ci ildə Azərbaycan Xalq Cümhuriyyətinin Hərbi nazirinin müavini kim olmuşdur?", a: "Əliağa Şıxlinski", cat: "AXC və tarix" },
+      { id: 66, q: "Bakı Universitetinin əsası nə vaxt qoyulmuşdur?", a: "01 sentyabr 1919", cat: "AXC və tarix" },
+      { id: 67, q: "Azərbaycan Parlamentinin Mühafizə Dəstəsi nə vaxt yaradılmışdır?", a: "18 fevral 1919", cat: "AXC və tarix" },
+      { id: 68, q: "Azərbaycan əlifbasında neçə hərf var?", a: "32", cat: "Tarix və əlamətdar günlər" },
+      { id: 69, q: "1-ci Dünya Müharibəsi neçən ci illərdə olub?", a: "1914-1918", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 70, q: "2- ci Dünya Müharibəsi neçən ci illərdə olub?", a: "1939-1945", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 71, q: "2- ci Dünya Müharibəsi zamanı iki dəfə Sovet İttifaqı Qəhrəmanı adına layiq görülmüş azərbaycanlı?", a: "İsrafil Məmmədov 1941", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 72, q: "Faşizm üzərində qələbə günü hər il hansı tarixdə qeyd olunur?", a: "9 may", cat: "Tarix və əlamətdar günlər" },
+      { id: 73, q: "Tarixdə Sovet İttifaqı məkanında Böyük Vətən müharibəsi illəri neçənci illərdə olub?", a: "1941-1945", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 74, q: "İkin ci dünya müharibəsi hansı tarixdə, hansı ölkənin hücumu ilə başlamışdır?", a: "01 sentyabr 1939 faşist Almaniyanın Polşaya hücumu", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 75, q: "Böyük Vətən müharibəsi illərində Azərbaycanlılardan ibarət hansı diviziyalar vardır?", a: "77, 223, 396, 402, 416.", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 76, q: "2 ci dünya müharibəsində 2 dəfə Sovet İttifaqı Qəhrəmanı adına kim layiq görülmüş Azərbaycanlı?", a: "Həzi Aslanov", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 77, q: "2 ci dünya müharibəsində 2 dəfə Sovet İttifaqı Qəhrəmanı adına layiq görülmüş Briqada komandiri qvardiya general mayoru H.Aslanov hansı qoşunlarda xidmət edirdi?", a: "Tank Artileriya", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 78, q: "2 ci dünya müharibəsində hansı Azərbaycanlı Sovet İttifaqı Qəhrəmanı adına kim layiq görülmüşdür?", a: "Müseyib Allahverdiyev,Sımıd Abdullayev,Gəray Əsədov", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 79, q: "Azərbaycan Respublikasının Bayramları Azərbaycan Respublikasının Əmək Məcəlləsinin hansı maddəsində göstərilir?", a: "Maddə 105", cat: "Tarix və əlamətdar günlər" },
+      { id: 80, q: "Azərbaycan Respublikasının Daxili İşlər Nazirliyi nə vaxt yaranıb?", a: "18 oktyabr 1991", cat: "Tarix və əlamətdar günlər" },
+      { id: 81, q: "Azərbaycan Respublikasının Müdafiə Nazirliyi nə vaxt yaranıb?", a: "05 sentyabr 1991", cat: "Tarix və əlamətdar günlər" },
+      { id: 82, q: "Azərbaycan Respublikasında Silahlı Qüvvələr günü nə vaxt qeyd olunur?", a: "26 iyun", cat: "Tarix və əlamətdar günlər" },
+      { id: 83, q: "«Azərbaycan Respublikasının Silahlı Qüvvələri haqqında» Qanun nə vaxt qəbul edilmişdir?", a: "09 oktyabr 1991", cat: "Tarix və əlamətdar günlər" },
+      { id: 84, q: "Azərbaycanlıların Soyqırımı günü nə vaxtdır?", a: "31 mart", cat: "Tarix və əlamətdar günlər" },
+      { id: 85, q: "Azərbaycan Respublikasında Milli Dirçəliş günü nə vaxt qeyd olunur?", a: "17 noyabr", cat: "Tarix və əlamətdar günlər" },
+      { id: 86, q: "«Beynəlxalq Qadınlar günü» hansı tarixdə qeyd olunur?", a: "8 mart", cat: "Tarix və əlamətdar günlər" },
+      { id: 87, q: "«Milli qurtuluş günü» hansı tarixdə olub?", a: "15 iyun 1993", cat: "Tarix və əlamətdar günlər" },
+      { id: 88, q: "Dünya Azərbaycanlılarının həmrəylik günü hər il hansı tarixdə qeyd olunur?", a: "31 dekabr", cat: "Tarix və əlamətdar günlər" },
+      { id: 89, q: "Azərbaycan Respublikasının dövlət rəmzləri Azərbaycan Respublikasının Konstitusiyasının hansı maddəsində göstərilir?", a: "Maddə 23", cat: "Dövlət rəmzləri" },
+      { id: 90, q: "Azərbaycan Respublikasının Dövlət Bayrağı günü hər il hansı tarixdə qeyd olunur?", a: "9 noyabr", cat: "Dövlət rəmzləri" },
+      { id: 91, q: "Azərbaycan Respublikasının Dövlət Bayrağı nəyi ifadə edir?", a: "Dövlətin suverenliyi", cat: "Dövlət rəmzləri" },
+      { id: 92, q: "Azərbaycan Respublikasının Dövlət Gerbi nəyi ifadə edir?", a: "Müstəqilliyi", cat: "Dövlət rəmzləri" },
+      { id: 93, q: "Dövlət Bayrağı meydanında Azərbaycan Respublikası Dövlət Bayrağı dirəyinin hündürlüyü?", a: "162 metr", cat: "Dövlət rəmzləri" },
+      { id: 94, q: "Dövlət Bayrağı meydanında Azərbaycan Respublikası Dövlət Bayrağının eni və uzunluğu nə qədərdir?", a: "Eni 35 m,uzunluğu 70 m", cat: "Dövlət rəmzləri" },
+      { id: 95, q: "Azərbaycan Respublikasının Dövlət Gerbinin təsvirində ulduz, alov, palıd budaqları, sünbüllər hansı rənglərdədirlər?", a: "Ağ,qırmızı,yaşıl,sarı", cat: "Dövlət rəmzləri" },
+      { id: 96, q: "Azərbaycanın üçrəngli Dövlət Bayrağı ilk dəfə olaraq hansı tarixdə qəbul edilmişdir?", a: "09 noyabr 1918", cat: "Dövlət rəmzləri" },
+      { id: 97, q: "Azərbaycan Respublikasının Dövlət Bayrağında rənglərin mənası nəyi ifadə edir?", a: "Mavi rəng-türkçülüyü,qırmızı rəng-müasirlik,yaşıl rəng islamçılığı", cat: "Dövlət rəmzləri" },
+      { id: 98, q: "«Azərbaycan Respublikasının Dövlət Bayrağı haqqında Əsasnamə» nə vaxt qəbul edilib?", a: "05 fevral 1991", cat: "Dövlət rəmzləri" },
+      { id: 99, q: "«Azərbaycan Respublikasının Dövlət Gerbi haqqında Əsasnamə» nə vaxt qəbul edilib?", a: "23 fevral 1993", cat: "Dövlət rəmzləri" },
+      { id: 100, q: "«Azərbaycan Respublikasının Dövlət Himni haqqında» Qanun nə vaxt qəbul edilib?", a: "27 may 1992", cat: "Dövlət rəmzləri" },
+      { id: 101, q: "Azərbaycan Respublikası hansı tarixdə Dövlət Müstəqilliyi haqqında Konstitusiya Aktını qəbul edib?", a: "18 oktyabr 1991", cat: "Tarix və əlamətdar günlər" },
+      { id: 102, q: "20 Yanvar faciəsi neçənci ildə baş verib?", a: "1990", cat: "Müharibələr və qəhrəmanlar" },
+      { id: 103, q: "2 ci Qarabağ müharibəsi nə zaman başladı?", a: "27 sentyabr 2020 ci il", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 104, q: "2 ci Qarabağ müharibəsi nə vaxt bitdi?", a: "10 noyabr 2020 ci il", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 105, q: "2 ci Qarabağ müharibəsində neçə hərbi qulluqçu şəhid olmuşdur?", a: "2900", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 106, q: "2 ci Qarabağ müharibəsində neçə hərbi qulluqçu «Vətən Müharibəsi Qəhrəmanı» adına layiq görülüb?", a: "83", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 107, q: "2 ci Qarabağ müharibəsində neçə hərbi qulluqçu «Zəfər ordeni» layiq görülüb?", a: "33", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 108, q: "2 ci Qarabağ müharibəsində neçə hərbi qulluqçu «Qarabağ» ordeni adına layiq görülüb?", a: "204", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 109, q: "2020-ci il dekabrın 2-də imzalanan sərəncama əsasən Anım günü nə vaxt keçirilir?", a: "27 sentyabr", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 110, q: "44 günlük müharibə ərzində sərəncama əsasən Zəfər günü nə vaxt qeyd edilir?", a: "8 noyabr", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 111, q: "Ağdam rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "23 iyul 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 112, q: "Ağdam rayonu Azərbaycan Respublikası, Rusiya Federasiyası Prezidentləri və Ermənistan Respublikası baş nazirinin imzaladığı üçtərəfli bəyanata əsasən hansı tarixdə Azərbaycan Respublikasının nəzarəti altına keçmişdir?", a: "20 noyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 113, q: "Xocəvənd rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "02 oktyabr 1992", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 114, q: "Xocəvənd rayonu hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad edilmişdir?", a: "10 noyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 115, q: "Xocalı rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "26 fevral 1992", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 116, q: "Xocalı rayonu hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad edilmişdir?", a: "10 noyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 117, q: "Şuşa şəhəri Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "08 may 1992", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 118, q: "Şuşa şəhəri hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad edilmişdir?", a: "8 noyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 119, q: "Laçın rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "18 may 1992", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 120, q: "Laçın rayonu Azərbaycan Respublikası, Rusiya Federasiyası Prezidentləri və Ermənistan Respublikası baş nazirinin imzaladığı üçtərəfli bəyanata əsasən hansı tarixdə Azərbaycan Respublikasının nəzarəti altına keçmişdir?", a: "01 dekabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 121, q: "Zəngilan rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "29 oktyabr 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 122, q: "Zəngilan şəhəri hansı tarixində Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad edilmişdir?", a: "20 oktyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 123, q: "Cəbrayıl rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "23 avqust 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 124, q: "Cəbrayıl şəhəri hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad olunmuşdur?", a: "04 oktyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 125, q: "Füzuli rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "23 avqust 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 126, q: "Füzuli şəhəri hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad olunmuşdur?", a: "17 oktyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 127, q: "Qubadlı rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "31 avqust 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 128, q: "Qubadlı şəhəri hansı tarixdə Azərbaycan Silahlı Qüvvələri tərəfindən işğaldan azad olunmuşdur?", a: "25 oktyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 129, q: "Kəlbəcər rayonu Ermənistan respublikasının silahlı qüvvələri tərəfindən nə vaxt işğal olunub?", a: "02 aprel 1993", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 130, q: "Kəlbəcər rayonu Azərbaycan Respublikası, Rusiya Federasiyası Prezidentləri və Ermənistan Respublikası baş nazirinin imzaladığı üçtərəfli bəyanata əsasən hansı tarixdə Azərbaycan Respublikasına nəzarəti altına keçmişdir?", a: "25 noyabr 2020", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 131, q: "Birləşmiş Millətlər Təşkilatı neçənci ildə yaradılmışdır?", a: "1945 cil San Fransisko 51 dövlət", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 132, q: "Birləşmiş Millətlər Təşkilatının Təhlükəsizlik Şurasının neçə daimi və neçə qeyri daimi üzvü var?", a: "5 daimi 10 qeyri-daimi", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 133, q: "Azərbaycan Respublikası Birləşmiş Millətlər Təşkilatına neçənci ildə üzv olmuşdur?", a: "02 mart 1992", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 134, q: "İslam Konfransı Təşkilatı neçənci ildə yaradılmışdır?", a: "1969 cı il Rabat", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 135, q: "Azərbaycan Respublikası İslam Konfransı Təşkilatına neçənci ildə üzv olmuşdur?", a: "1991", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 136, q: "«Əsrin müqaviləsi» adı ilə tarixə düşən beynəlxalq neft layihəsinin 20 illiyi hansı tarixdə qeyd olundu?", a: "2014", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 137, q: "IV Bakı Beynəlxalq Humanitar Forum hansı tarixdə keçirilmişdir?", a: "02-03 oktyabr 2014", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 138, q: "IV Bakı Qlobal Forum hansı tarixdə keçirilmişdir?", a: "2016", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 139, q: "Müstəqil Dövlətlər Birliyi neçənci ildə yaradılmışdır?", a: "1991", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 140, q: "Azərbaycan Respublikası neçənci ildə Müstəqil Dövlətlər Birliyinə üzv olmuşdur?", a: "1993", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 141, q: "Azərbaycan Respublikası Avropa Şurasına neçənci ildə üzv olmuşdur?", a: "2000", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 142, q: "Dünya Azərbaycanlılarının 1-ci Qurultayı nə vaxt keçirilmişdir?", a: "09-10 noyabr 2001", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 143, q: "Dünya Azərbaycanlılarının 2-ci Qurultayı nə vaxt keçirilmişdir?", a: "16 mart 2006", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 144, q: "Dünya Azərbaycanlılarının 3-cü Qurultayı nə vaxt keçirilmişdir?", a: "05-06 iyul 2011", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 145, q: "Türkdilli ölkələrin dövlət başçılarının 9-cu zirvə toplantısı neçənci ildə harada keçirilib?", a: "03 oktyabr 2009 Naxçıvan", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 146, q: "Türkdilli Dövlətlərin Əməkdaşlıq Şurasının Birinci Zirvə toplantısı neçənci ildə harada keçirilib?", a: "21 oktyabr 2011 Almata", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 147, q: "Türkdilli Dövlətlərin Əməkdaşlıq Şurasının İkinci Zirvə toplantısı neçənci ildə harada keçirilib?", a: "23 avqust 2012 Bişkek", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 148, q: "Türkdilli Dövlətlərin Əməkdaşlıq Şurasının Üçüncü Zirvə toplantısı neçənci ildə harada keçirilib?", a: "16 avqust 2013 Qəbələ", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 149, q: "İlk Avropa Oyunları hansı tarixdə keçirilib?", a: "12-18 iyun 2015", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 150, q: "Şimali Atlantika Müqaviləsi Təşkilatı (NATO) neçənci ildə yaradılmışdır?", a: "1949", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 151, q: "ATƏT-in Lissabon sammiti hansı tarixdə keçirilib?", a: "2-3 dekabr 1996", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 152, q: "«Heydər Əliyev Fondu» hansı tarixdə təsis edilmişdir?", a: "10 may 2004", cat: "Dövlət rəhbərləri və tarix" },
+      { id: 153, q: "«Əsrin Müqaviləsi» hansı tarixdə imzalanmışdır?", a: "20 sentyabr 1994", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 154, q: "Bakı-Tbilisi-Ceyhan boru kəmərini tikintisi haqqında Saziş imzalanmış ATƏT-in İstanbul sammiti hansı tarixdə baş tutub?", a: "18-19 sentyabr 1999", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 155, q: "Bakı-Tbilisi-Ceyhan ixrac neft boru kəməri hansı ölkələrin ərazisindən keçir?", a: "Gürcüstan,Türkiyə,Azərbaycan", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 156, q: "Böyük İpək Yolunun bərpası üzrə Beynəlxalq Konfrans Bakı şəhərində hansı tarixdə keçirilmişdir ?", a: "8-9 sentyabr 1998", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 157, q: "GUAM təşkilatı nə vaxt yaradılmışdır və hansı ölkələr daxildi?", a: "10 oktyabr 1997,Gürcüstan,Ukrayna,Moldova,Azərbaycan", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 158, q: "Qara Dəniz İqtisadi Əməkdaşlıq Təşkilatı nə vaxt yaradılıb?", a: "25 iyun 1992, Azərbaycan, Albaniya, Ermənistan, Bolqarıstan, Gürcüstan, Yunanıstan, Moldova, Rumıniya, Rusiya, Türkiyə və Ukrayna", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 159, q: "Aşağıda göstərilən dövlət mükafatlarından hansıları medaldır?", a: "“Hərbi xidmətdə fərqlənməyə görə”, “Qüsursuz xidmətlərə görə 3-cü dərəcəli”", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 160, q: "Aşağıda göstərilən dövlət mükafatlarından hansıları ordendir?", a: "“İstiqlal ordeni”, “Dostluq ordeni”", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 161, q: "Hərbi qulluqçu neçə il Silahlı Qüvvələrdə qüsursuz xidmət etdikdə «Qüsursuz xidmətlərə görə» 3-cü dərəcəli medalı alınmasına təqdim edilə bilər?", a: "10 il", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 162, q: "Hərbi qulluqçu neçə il Silahlı Qüvvələrdə qüsursuz xidmət etdikdə «Qüsursuz xidmətlərə görə» 2-ci dərəcəli medalı alınmasına təqdim edilə bilər?", a: "15 il", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 163, q: "Hərbi qulluqçu neçə il Silahlı Qüvvələrdə qüsursuz xidmət etdikdə «Qüsursuz xidmətlərə görə» 1-ci dərəcəli medalı alınmasına təqdim edilə bilər?", a: "20 il", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 164, q: "Hərbi qulluqçu neçə il Silahlı Qüvvələrdə qüsursuz xidmət etdikdə «Silahlı Qüvvələri Veteranı» medalı alınmasına təqdim edilə bilər?", a: "25 il", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 165, q: "Azərbaycan Respublikasının ərazi bütövlüyünün təhlükəsizliyinin təmin edilməsində xüsusi xidmətlərə görə, görkəmli sərkərdəlik fəaliyyətinə görə Azərbaycan Respublikası Silahlı Qüvvələrin ali zabitləri, hərbi hissə və birləşmələrin komandirləri hansı ordenlə təltif edilə bilərlər?", a: "“Şah İsmayıl Xətai”", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 166, q: "Bu təşkilatlardan hansı terror təşkilatıdır?", a: "Asala, İsid", cat: "Tarix və əlamətdar günlər" },
+      { id: 167, q: "Qarabağ səmasında içərisində Azərbaycanın dövlət xadimləri olan helikopter nə vaxt vurulmuşdur?", a: "20 noyabr 1991", cat: "Qarabağ və Vətən müharibəsi" },
+      { id: 168, q: "Azərbaycan Respublikasının ilk telekommunikasiya peyki «Azərspeys-1» nə vaxt kosmosa çıxarılmışdır?", a: "08 fevral 2013", cat: "Tarix və əlamətdar günlər" },
+      { id: 169, q: "İbtidai icma quruluşu hansı mərhələlərə bölünür?", a: "Daş, Tunc, dəmir", cat: "Qədim dövr və orta əsrlər" },
+      { id: 170, q: "Qafqaz Albaniyasının ilk paytaxtı hara idi?", a: "Qəbələ sonra Bərdə", cat: "Qədim dövr və orta əsrlər" },
+      { id: 171, q: "E.ə. 9-cu yüzillikdə Urmiya sahillərində ilk Azərbaycan dövləti hansı idi?", a: "Manna", cat: "Qədim dövr və orta əsrlər" },
+      { id: 172, q: "Azərbaycan ərazisində mövcud olmuş ən qədim dövlətlərdən biri hansıdır?", a: "Qafqaz Albaniyası,Atropatena,Midiya", cat: "Qədim dövr və orta əsrlər" },
+      { id: 173, q: "Azərbaycanda ən qədim tayfalar hansılardır?", a: "Aratta,Lulubi,Kuti,Turukki", cat: "Qədim dövr və orta əsrlər" },
+      { id: 174, q: "Qafqaz Albaniyasının neçə əyaləti var idi?", a: "11 əyalət", cat: "Qədim dövr və orta əsrlər" },
+      { id: 175, q: "Zərdüştlük dini təliminin Müqəddəs Kitabı?", a: "Avesta", cat: "Qədim dövr və orta əsrlər" },
+      { id: 176, q: "Qafqaz Albaniyası tarixi dövlətinin ərazisində hökmranlıq etmiş sülalə?", a: "Mehranilər", cat: "Qədim dövr və orta əsrlər" },
+      { id: 177, q: "Qafqaz Albaniyasının hökmdarlarından biri, həmçinin Mehranilər sülaləsinin ən parlaq nümayəndələrindən biri?", a: "Cavanşir", cat: "Qədim dövr və orta əsrlər" },
+      { id: 178, q: "638-670-ci illərdə Qafqaz Albaniyasının hökmdarı?", a: "Cavanşir", cat: "Qədim dövr və orta əsrlər" },
+      { id: 179, q: "Azərbaycanda Ərəb Xilafətinin hökmranlığı dövrü neçənci əsrdə olub?", a: "VII-IX əsr", cat: "Qədim dövr və orta əsrlər" },
+      { id: 180, q: "Xürrəmilər hərəkatının ilk rəhbəri?", a: "Cavidan", cat: "Qədim dövr və orta əsrlər" },
+      { id: 181, q: "Babəkin başçılığı ilə hakimiyyət illəri?", a: "816-837-ci illər", cat: "Qədim dövr və orta əsrlər" },
+      { id: 182, q: "Eldəgəzlər dövlətinin başçısı kim olmuşdur?", a: "Şəmsəddin Eldəniz", cat: "Qədim dövr və orta əsrlər" },
+      { id: 183, q: "Ağqoyunlu dövlətinin başçısı kim olmuşdur?", a: "Uzun Həsən", cat: "Qədim dövr və orta əsrlər" },
+      { id: 184, q: "Eldəgəzlər dövlətinin iqamətgahı hansı şəhər idi?", a: "Naxçıvan", cat: "Qədim dövr və orta əsrlər" },
+      { id: 185, q: "Qaraqoyunlu dövlətinin başçısı kim olmuşdur?", a: "Qara Yusif", cat: "Qədim dövr və orta əsrlər" },
+      { id: 186, q: "Orta əsrlərdə Azərbaycan ərazisində mövcud olmuş dövlətlər hansılardır?", a: "Salarilər,Eldəgəzlər,Şəddadilər", cat: "Qədim dövr və orta əsrlər" },
+      { id: 187, q: "Səfəvilər dövlətinin birinci şahı?", a: "Şah İsmayılın Xətai", cat: "Qədim dövr və orta əsrlər" },
+      { id: 188, q: "Azərbaycanda Monqol hakimiyyəti nə vaxt olub?", a: "XIII-XIV əsrlər", cat: "Qədim dövr və orta əsrlər" },
+      { id: 189, q: "Tarixdə Tomris kim olmuşdur?", a: "Massagetlərdən olan məşhur qadın sərkərdə", cat: "Qədim dövr və orta əsrlər" },
+      { id: 190, q: "Şərqdə ilk diplomat qadın kim olmuşdur?", a: "Sara Xatun", cat: "Qədim dövr və orta əsrlər" },
+      { id: 191, q: "Qacarlar nəslindən olan böyük Azərbaycan sərkərdəsi, dövlət xadimi olan Cavad xan haranın xanı idi?", a: "Gəncə xanı", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 192, q: "Azərbaycan xanlıqları neçənci əsrdə yaranmışdır?", a: "XVIII-XIX əsr", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 193, q: "Azərbaycan ərazisində XVIII əsrdə hansı tarixi xanlıqlar meydana gəlmişdir?", a: "Quba xanlığı,Şuşa xanlığı,Qaradağ xanlığı", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 194, q: "Gülüstan Sülh müqaviləsi nə vaxt bağlanıb?", a: "12 oktyabr 1813 Rusiya İran arasında", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 195, q: "Türkmənçay Sülh müqaviləsi nə vaxt bağlanıb?", a: "10 fevral 1828 Rusiya İran arasında", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 196, q: "Gülüstan və Türkmənçay Sülh müqavilələri nəticəsində hansı ölkələr Azərbaycanın iki hissəyə bölünməsinə səbəb olub?", a: "Rusiya və İran", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 197, q: "Kosmosdan görünən insan əli ilə düzəldilmiş yeganə tikili hansıdır?", a: "Çin səddi", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 198, q: "Azərbaycanda ən qədim mağara hansıdır?", a: "Azıx mağarası", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 199, q: "Azıx mağarası harada yerləşir?", a: "Füzuli şəhərindən 14 km şimal-qərbə Quruçayın sol sahilində", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 200, q: "1186-cı ildə tikilən Mömünə xatun türbəsi harada yerləşir?", a: "Naxçıvan şəhəri  1186-cı il", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 201, q: "Əshabi-Kəhf mağarası harada yerləşir?", a: "Naxçıvan şəhəri,təqribən 12 km aralı,İlandağ ilə Nəhəcir dağı arasında", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 202, q: "Qız qalasının hündürlüyü neçə m-dir?", a: "28 metr", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 203, q: "Bu qalalardan hansı Bakı şəhərində yerləşir?", a: "Nardaran,Mərdəkan,Bilgəh,Dairəvi qala", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 204, q: "Şirvanşahlar saray kompleksi neçənci ildə tikilib?", a: "XV əsr", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 205, q: "Azərbaycan Tarixi Muzeyinin yerləşdiyi bina hansı məşhur xeyriyyəçinin yaşayış evi olub?", a: "Hacı Zeynalabdin Tağıyev", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 206, q: "İsmailiyyə binasını hansı milyonçu oğlu İsmayılın xatirəsinə tikdirib?", a: "Musa Nağıyev", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 207, q: "Azərbaycan Dövlət Filarmoniyası neçənci ildə tikilib?", a: "1910-1912", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 208, q: "Azərbaycan Dövlət Filarmoniyası hansı bəstəkarın adını daşıyır?", a: "Müslüm Maqomayev", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 209, q: "Səadət Sarayını hansı milyonçu tikdirmişdir?", a: "Murtuza Muxtarov", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 210, q: "İlk ali təhsilli azərbaycanlı memarı kimdir?", a: "Zivər bəy Əhmədbəyov", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 211, q: "Qız qalası və Şirvanşahlar Sarayı ilə birlikdə neçənci ildə UNESCO-nun Dünya Mədəni İrsi siyahısına salınmışdır?", a: "2000-ci ilin dekabr ayı", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 212, q: "Qırmızı Körpü və ya Sınıq körpü hansı rayonunun ərazisində yerləşir?", a: "Qazax", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 213, q: "Şimali Azərbaycan və Cənubi Azərbaycanı birləşdirən Xudafərin körpüsü hansı rayonunun ərazisində yerləşir?", a: "Qazax", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 214, q: "Prezident Sarayı neçənci ildə tikilib?", a: "1977-1986", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 215, q: "Heydər Əliyev Sarayı neçənci ildə tikilib?", a: "1972", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 216, q: "Azərbaycan Respublikasının ərazisi?", a: "86.6 min km²", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 217, q: "Azərbaycan Respublikasının ərazisində olan muxtar qurumlar var?", a: "Naxçıvan", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 218, q: "Azərbaycan Respublikası Xəzər dənizi vasitəsi ilə hansı ölkələrlə həmsərhəddir?", a: "Türkmənistan,Qazaxıstan,Rusiya,İran,", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 219, q: "Azərbaycan Respublikası qurudan hansı ölkə ilə ən uzun sərhəd zolağına malikdir?", a: "Ermənistan", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 220, q: "Azərbaycan Respublikası qurudan hansı ölkələrlə həmsərhəddir?", a: "Rusiya,İran,Türkiyə,Gürcüstan,Ermənistan,", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 221, q: "Azərbaycan Respublikasının ən hündür dağ zirvəsi?", a: "Bazardüzü 4466 metr", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 222, q: "Samur çayından Astaracaya qədər Xəzər dənizinin sahil xəttinin uzunluğu neçə km-dir?", a: "825 km", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 223, q: "Xəzərin ən dərin yeri neçə m-dir?", a: "1025 metr", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 224, q: "Yer kürəsində ən böyük axmaz göl?", a: "Xəzər", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 225, q: "Xəzərin səviyyəsi okean səthindən neçə m aşağıdadır?", a: "28 metr", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 226, q: "Xəzər dənizinin qərb sahilində, Azərbaycan Respublikası ərazisində yerləşən yarımada hansıdır?", a: "Abşeron yarımadası", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 227, q: "Azərbaycan Respublikasının ən böyük çayı?", a: "Kür çayı", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 228, q: "Kür çayının uzunluğu neçə km-dir?", a: "1515 km", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 229, q: "Kür hansı ölkələrin ərazisindən keçir?", a: "Türkiyə,Gürcüstan,Azərbaycan", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 230, q: "Kür çayının ən böyük qolu?", a: "Araz çayı", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 231, q: "Araz çayının uzunluğu neçə km-dir?", a: "1072 km", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 232, q: "Göygöl gölü nejə yaranmışdır?", a: "Gəncədə baş vermiş zəlzələ nəticəsində", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 233, q: "Azərbaycan Respublikasının ən böyük gölü?", a: "Sarısı", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 234, q: "Yer kürəsində ən çox palçıq vulkanlar olan ölkə hansıdır?", a: "Azərbaycan", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 235, q: "Azərbaycanda olan palçıq vulkan hansıdır?", a: "Lökbatan,Keyrəki,Keçəldağ", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 236, q: "Aşağıdakı göstərilən təşkilatlardan hansıları beynəlxalq təşkilatdır?", a: "Şəkildə cavab qeyd olunmayıb", cat: "Beynəlxalq təşkilatlar və diplomatiya" },
+      { id: 237, q: "Nazirlər Şurasının 1918-ci il 2 iyul tarixli sərəncamı ilə Daxili İşlər Nazirliyi tərkibində müstəqil Azərbaycanın polis orqanları yaradıldı -", a: "02 iyul Azərbaycan polisi günü", cat: "AXC və tarix" },
+      { id: 238, q: "Mingəçevir su anbarı və Su Elektrik Stansiyası (SES) tikintisi neçənci ildə istifadəyə verilib?", a: "1953-cü", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 239, q: "Quba rayonunda hansı şəlalə vardır?", a: "Afruca", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 240, q: "Azərbaycanda olan şəlalələr?", a: "Yeddi gözəl,İlisu,Laza,Şahnabaz", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 241, q: "Katexçay şəlaləsi hansı rayonunun ərazisində yerləşir?", a: "Balakən", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 242, q: "Badamlı bulağı harada yerləşir?", a: "Şahbuz rayonu", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 243, q: "Azərbaycanda olan qoruqlar hansılardır?", a: "Qobustan Dövlət Tarix və Bədii qoruğu,Bəsitçay,Göy-Göl,Pirqlu", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 244, q: "Azərbaycan Respublikasının Konstitusiyasının 158 maddəsindən neçəsi insan hüquqlarına həsr edilib?", a: "Şəkildə cavab qeyd olunmayıb", cat: "Konstitusiya və hüquq" },
+      { id: 245, q: "Azərbaycan ərazisində yerləşən neft yataqları hansılardır?", a: "Atəşgah (neft yatağı), Azəri-Çıraq-Günəşli, Bahar (yataq), Cənubi Xəzər neftli-qazlı hövzəsi, Dan ulduzu (neft-qaz yatağı),Dostluq yatağı", cat: "Coğrafiya və ümumi biliklər" },
+      { id: 246, q: "«Azərbaycanın Milli Qəhrəmanı» adı eyni şəxsə neçə dəfə verilə bilər?", a: "1 dəfə", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 247, q: "«Azərbaycanın Milli Qəhrəmanı» adı kimə verilir?", a: "Azərbaycan Respublikasının müstəqilliyi və tərəqqisi naminə xalq qarşısında müstəsna xidmətlərə və rəşadətə görə", cat: "Dövlət mükafatları və hərbi xidmət" },
+      { id: 248, q: "Dünyada ilk dəfə olaraq texnikanın tətbiqi ilə ilk neft quyuları harada, neçənci ildə qazılmışdır?", a: "1847 ci Bibiheybət", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 249, q: "Fəxri Xiyaban memorial kompleks neçənci ildə yaradılmışdır?", a: "1948-ci il", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 250, q: "Azərbaycan dilində neçənci ildə hansı qəzetlə Azərbaycan Milli Mətbuatının əsasını qoymuşdur?", a: "1875 ci il “Əkinçi” qəzeti", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 251, q: "1875-ci ildə Azərbaycan dilində «Əkinçi» qəzetinin nəşrinə hansı görkəmli ziyalı müvəffəq olmuşdur?", a: "Həsən bəy Zərdabi tərəfindən", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 252, q: "Hacı Zeynalabdin Tağıyev neçənci ildə İlk dəfə olaraq Şərqdə Qızlar Məktəbini tikdirib?", a: "1898-1901", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 253, q: "Bakı milyonçusu Hacı Zeynalabdin Tağıyevə məxsus olmuş, hazırda isə Azərbaycan Tarix Muzeyinin yerləşdiyi saray binası neçənci ildə tikilib?", a: "1893-1902", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 254, q: "Azərbaycan yazılı ədəbiyyatının ən qədim nümunəsi?", a: "Avesta", cat: "Xanlıqlar, memarlıq və mədəniyyət" },
+      { id: 255, q: "Azərbaycan xalq ədəbiyyatının ən qədim yazılı abidəsi -", a: "“Kitabi-Dədə Qorqud” dastanı", cat: "Xanlıqlar, memarlıq və mədəniyyət" }
+    ];
+
+    const STORAGE_KEY = "ictimai_siyasi_hazirliq_progress_v1";
+
+    // Default persisted progress structure
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return {
+            learnedIds: [],
+            mistakeIds: [],
+            quizStats: { answered: 0, correct: 0 }
+          };
+        }
+        const parsed = JSON.parse(raw);
+        return {
+          learnedIds: Array.isArray(parsed.learnedIds) ? parsed.learnedIds : [],
+          mistakeIds: Array.isArray(parsed.mistakeIds) ? parsed.mistakeIds : [],
+          quizStats: {
+            answered: Number(parsed.quizStats?.answered) || 0,
+            correct: Number(parsed.quizStats?.correct) || 0
+          }
+        };
+      } catch (e) {
+        return {
+          learnedIds: [],
+          mistakeIds: [],
+          quizStats: { answered: 0, correct: 0 }
+        };
+      }
+    }
+
+    function saveProgress(progress) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      } catch (e) {
+        // Ignore storage quota errors safely
+      }
+    }
+
+    // Application State
+    const state = {
+      mode: "flashcards", // 'flashcards' | 'quiz' | 'browse'
+      category: "Hamısı",
+      range: "all", // 'all' | '1-50' | '51-100' | '101-150' | '151-200' | '201-255'
+      onlyReview: false, // Mistakes / Hard / Review filter
+      searchQuery: "",
+      // Flashcard state
+      cardIndex: 0,
+      isFlipped: false,
+      shuffleCards: false,
+      shuffledOrder: [],
+      // Quiz state
+      quizQuestion: null,
+      quizOptions: [],
+      quizSelectedOption: null,
+      quizIsCorrect: null,
+      quizRecentIds: [],
+      // Browse state
+      expandedBrowseIds: {},
+      // Toast notification
+      toast: null,
+      // User progress
+      progress: loadProgress()
+    };
+
+    const categories = [
+      "Hamısı",
+      ...Array.from(new Set(QUESTIONS_DATA.map((item) => item.cat)))
+    ];
+
+    const ranges = [
+      { id: "all", label: "Bütün suallar (1–255)" },
+      { id: "1-50", label: "№ 1–50" },
+      { id: "51-100", label: "№ 51–100" },
+      { id: "101-150", label: "№ 101–150" },
+      { id: "151-200", label: "№ 151–200" },
+      { id: "201-255", label: "№ 201–255" }
+    ];
+
+    function showToast(message, type = "info") {
+      state.toast = { message, type };
+      render();
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        state.toast = null;
+        render();
+      }, 2800);
+    }
+
+    function matchesRange(id, rangeId) {
+      if (rangeId === "all") return true;
+      const [min, max] = rangeId.split("-").map(Number);
+      return id >= min && id <= max;
+    }
+
+    function getFilteredQuestions(ignoreSearch = false) {
+      return QUESTIONS_DATA.filter((item) => {
+        if (state.category !== "Hamısı" && item.cat !== state.category) {
+          return false;
+        }
+        if (!matchesRange(item.id, state.range)) {
+          return false;
+        }
+        if (state.onlyReview) {
+          const inMistakes = state.progress.mistakeIds.includes(item.id);
+          const notLearned = !state.progress.learnedIds.includes(item.id);
+          if (!inMistakes && !notLearned) return false;
+        }
+        if (!ignoreSearch && state.searchQuery.trim() !== "") {
+          const q = state.searchQuery.trim().toLowerCase();
+          const matchNum = String(item.id) === q;
+          const matchQ = item.q.toLowerCase().includes(q);
+          const matchA = item.a.toLowerCase().includes(q);
+          const matchCat = item.cat.toLowerCase().includes(q);
+          if (!matchNum && !matchQ && !matchA && !matchCat) return false;
+        }
+        return true;
+      });
+    }
+
+    function getOrderedFlashcards() {
+      const filtered = getFilteredQuestions(false);
+      if (!state.shuffleCards) {
+        return filtered;
+      }
+      const mapById = new Map(filtered.map((q) => [q.id, q]));
+      const ordered = [];
+      for (const id of state.shuffledOrder) {
+        if (mapById.has(id)) {
+          ordered.push(mapById.get(id));
+          mapById.delete(id);
+        }
+      }
+      // Add any remaining items that weren't in shuffledOrder
+      for (const q of mapById.values()) {
+        ordered.push(q);
+      }
+      return ordered;
+    }
+
+    function generateShuffledOrder() {
+      const ids = getFilteredQuestions(false).map((q) => q.id);
+      for (let i = ids.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+      }
+      state.shuffledOrder = ids;
+      state.cardIndex = 0;
+      state.isFlipped = false;
+    }
+
+    // Build multiple-choice options for a target question
+    function buildQuizQuestion() {
+      const pool = getFilteredQuestions(true).filter(
+        (q) => q.a && !q.a.toLowerCase().includes("şəkildə cavab qeyd olunmayıb")
+      );
+
+      if (pool.length === 0) {
+        state.quizQuestion = null;
+        state.quizOptions = [];
+        state.quizSelectedOption = null;
+        state.quizIsCorrect = null;
+        return;
+      }
+
+      // Prefer questions not recently seen
+      const unseen = pool.filter((q) => !state.quizRecentIds.includes(q.id));
+      const candidates = unseen.length > 0 ? unseen : pool;
+      const target = candidates[Math.floor(Math.random() * candidates.length)];
+
+      state.quizRecentIds = [...state.quizRecentIds.slice(-18), target.id];
+
+      // Distractors from same category first, then global pool
+      const sameCat = QUESTIONS_DATA.filter(
+        (q) =>
+          q.id !== target.id &&
+          q.cat === target.cat &&
+          q.a &&
+          !q.a.toLowerCase().includes("şəkildə cavab qeyd olunmayıb") &&
+          q.a.trim().toLowerCase() !== target.a.trim().toLowerCase()
+      );
+
+      const otherPool = QUESTIONS_DATA.filter(
+        (q) =>
+          q.id !== target.id &&
+          q.a &&
+          !q.a.toLowerCase().includes("şəkildə cavab qeyd olunmayıb") &&
+          q.a.trim().toLowerCase() !== target.a.trim().toLowerCase()
+      );
+
+      const distractors = [];
+      const usedAnswers = new Set([target.a.trim().toLowerCase()]);
+
+      function pickFrom(list) {
+        const copy = [...list];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        for (const item of copy) {
+          if (distractors.length >= 3) break;
+          const norm = item.a.trim().toLowerCase();
+          if (!usedAnswers.has(norm)) {
+            usedAnswers.add(norm);
+            distractors.push(item.a);
+          }
+        }
+      }
+
+      pickFrom(sameCat);
+      pickFrom(otherPool);
+
+      const options = [target.a, ...distractors];
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+
+      state.quizQuestion = target;
+      state.quizOptions = options;
+      state.quizSelectedOption = null;
+      state.quizIsCorrect = null;
+    }
+
+    function handleSelectQuizOption(optionText) {
+      if (!state.quizQuestion || state.quizSelectedOption !== null) return;
+      const qId = state.quizQuestion.id;
+      const isCorrect = optionText === state.quizQuestion.a;
+
+      state.quizSelectedOption = optionText;
+      state.quizIsCorrect = isCorrect;
+
+      state.progress.quizStats.answered += 1;
+      if (isCorrect) {
+        state.progress.quizStats.correct += 1;
+        state.progress.mistakeIds = state.progress.mistakeIds.filter((id) => id !== qId);
+        if (!state.progress.learnedIds.includes(qId)) {
+          state.progress.learnedIds.push(qId);
+        }
+      } else {
+        if (!state.progress.mistakeIds.includes(qId)) {
+          state.progress.mistakeIds.push(qId);
+        }
+      }
+      saveProgress(state.progress);
+      render();
+    }
+
+    function markCardLearned(qId) {
+      if (!state.progress.learnedIds.includes(qId)) {
+        state.progress.learnedIds.push(qId);
+      }
+      state.progress.mistakeIds = state.progress.mistakeIds.filter((id) => id !== qId);
+      saveProgress(state.progress);
+      showToast(`№${qId} sualı öyrənilmiş kimi qeyd edildi`, "success");
+    }
+
+    function markCardHard(qId) {
+      if (!state.progress.mistakeIds.includes(qId)) {
+        state.progress.mistakeIds.push(qId);
+      }
+      state.progress.learnedIds = state.progress.learnedIds.filter((id) => id !== qId);
+      saveProgress(state.progress);
+      showToast(`№${qId} sualı təkrar siyahısına əlavə olundu`, "warning");
+    }
+
+    function toggleReviewStatus(qId) {
+      const idx = state.progress.mistakeIds.indexOf(qId);
+      if (idx >= 0) {
+        state.progress.mistakeIds.splice(idx, 1);
+        showToast(`№${qId} təkrar siyahısından çıxarıldı`, "info");
+      } else {
+        state.progress.mistakeIds.push(qId);
+        showToast(`№${qId} təkrar siyahısına əlavə edildi`, "warning");
+      }
+      saveProgress(state.progress);
+      render();
+    }
+
+    function resetProgress() {
+      state.progress = {
+        learnedIds: [],
+        mistakeIds: [],
+        quizStats: { answered: 0, correct: 0 }
+      };
+      saveProgress(state.progress);
+      showToast("Bütün tərəqqi sıfırlandı", "info");
+      render();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderHeader() {
+      const learnedCount = state.progress.learnedIds.length;
+      const mistakeCount = state.progress.mistakeIds.length;
+      const totalCount = QUESTIONS_DATA.length;
+      const percent = Math.round((learnedCount / totalCount) * 100);
+      const quizAcc =
+        state.progress.quizStats.answered > 0
+          ? Math.round((state.progress.quizStats.correct / state.progress.quizStats.answered) * 100)
+          : 0;
+
+      return `
+        <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+          <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/60 mb-1.5">
+                  <span>🇦🇿</span>
+                  <span>İctimai-siyasi hazırlıq • № 1–255</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                  Test İmtahanları Tədris və Məşq Platforması
+                </h1>
+              </div>
+
+              <!-- Progress Summary Pills -->
+              <div class="grid grid-cols-3 sm:flex sm:items-center gap-2 sm:gap-3">
+                <div class="px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60">
+                  <div class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">Öyrənilib</div>
+                  <div class="text-sm sm:text-base font-bold text-emerald-900 dark:text-emerald-100">
+                    ${learnedCount}/${totalCount} <span class="text-xs font-semibold">(${percent}%)</span>
+                  </div>
+                </div>
+
+                <div class="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/60">
+                  <div class="text-[11px] font-medium text-amber-700 dark:text-amber-300">Təkrar / Çətin</div>
+                  <div class="text-sm sm:text-base font-bold text-amber-900 dark:text-amber-100">
+                    ${mistakeCount} sual
+                  </div>
+                </div>
+
+                <div class="px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/60">
+                  <div class="text-[11px] font-medium text-blue-700 dark:text-blue-300">Test dəqiqliyi</div>
+                  <div class="text-sm sm:text-base font-bold text-blue-900 dark:text-blue-100">
+                    ${state.progress.quizStats.answered > 0 ? `${quizAcc}%` : "—"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overall Progress Bar -->
+            <div class="mt-3.5">
+              <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 transition-all duration-500 rounded-full"
+                  style="width: ${percent}%"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Mode Switcher & Reset -->
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <nav class="inline-flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 w-full sm:w-auto" aria-label="Rejim seçimi">
+                <button
+                  id="mode-flashcards"
+                  type="button"
+                  class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                    state.mode === "flashcards"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }"
+                >
+                  <span>🃏</span>
+                  <span>Fləşkartlar</span>
+                </button>
+                <button
+                  id="mode-quiz"
+                  type="button"
+                  class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                    state.mode === "quiz"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }"
+                >
+                  <span>✅</span>
+                  <span>Test məşqi</span>
+                </button>
+                <button
+                  id="mode-browse"
+                  type="button"
+                  class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                    state.mode === "browse"
+                      ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }"
+                >
+                  <span>📖</span>
+                  <span>Axtarış və Siyahı</span>
+                </button>
+              </nav>
+
+              <button
+                id="reset-progress-btn"
+                type="button"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
+              >
+                <span>↺</span>
+                <span>Tərəqqini sıfırla</span>
+              </button>
+            </div>
+          </div>
+        </header>
+      `;
+    }
+
+    function renderFilters(filteredCount) {
+      const reviewBadgeCount = QUESTIONS_DATA.filter(
+        (q) => state.progress.mistakeIds.includes(q.id) || !state.progress.learnedIds.includes(q.id)
+      ).length;
+
+      return `
+        <section class="max-w-6xl w-full mx-auto px-4 sm:px-6 pt-5">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+              <!-- Category Select -->
+              <div class="md:col-span-4">
+                <label for="filter-category" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  Mövzu / Kateqoriya
+                </label>
+                <select
+                  id="filter-category"
+                  class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  ${categories
+                    .map(
+                      (cat) =>
+                        `<option value="${escapeHtml(cat)}" ${state.category === cat ? "selected" : ""}>${escapeHtml(cat)}</option>`
+                    )
+                    .join("")}
+                </select>
+              </div>
+
+              <!-- Range Select -->
+              <div class="md:col-span-3">
+                <label for="filter-range" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  Sual aralığı
+                </label>
+                <select
+                  id="filter-range"
+                  class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  ${ranges
+                    .map(
+                      (r) =>
+                        `<option value="${r.id}" ${state.range === r.id ? "selected" : ""}>${escapeHtml(r.label)}</option>`
+                    )
+                    .join("")}
+                </select>
+              </div>
+
+              <!-- Search Input -->
+              <div class="md:col-span-3">
+                <label for="filter-search" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  Axtarış (nömrə, sual və ya cavab)
+                </label>
+                <div class="relative">
+                  <input
+                    id="filter-search"
+                    type="text"
+                    value="${escapeHtml(state.searchQuery)}"
+                    placeholder="Məs: 25, Bayraq, 1991..."
+                    class="w-full rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span class="absolute left-3 top-2.5 text-slate-400 text-sm">🔍</span>
+                  ${
+                    state.searchQuery
+                      ? `<button id="clear-search-btn" type="button" title="Təmizlə" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-bold cursor-pointer">✕</button>`
+                      : ""
+                  }
+                </div>
+              </div>
+
+              <!-- Review / Mistakes Filter Toggle -->
+              <div class="md:col-span-2 flex flex-col justify-end">
+                <span class="hidden md:block text-xs font-semibold text-transparent mb-1 select-none">Filtr</span>
+                <button
+                  id="toggle-review-filter"
+                  type="button"
+                  class="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                    state.onlyReview
+                      ? "bg-amber-500 text-white border-amber-600 shadow-sm"
+                      : "bg-amber-50/80 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800/70 hover:bg-amber-100 dark:hover:bg-amber-950/70"
+                  }"
+                >
+                  <span>⚠️</span>
+                  <span>Təkrar / Səhv (${reviewBadgeCount})</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <div>
+                Tapılan suallar: <strong class="text-slate-800 dark:text-slate-200">${filteredCount}</strong>
+                ${
+                  state.category !== "Hamısı" || state.range !== "all" || state.onlyReview || state.searchQuery
+                    ? `<button id="clear-all-filters" type="button" class="ml-2 text-blue-600 dark:text-blue-400 hover:underline font-semibold cursor-pointer">Filtrləri sıfırla</button>`
+                    : ""
+                }
+              </div>
+              <div class="hidden sm:block">
+                Klaviatura qısayolları: <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono">←</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono">→</kbd> • <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono">Space</kbd> çevir
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderFlashcardsMode() {
+      const cards = getOrderedFlashcards();
+
+      if (cards.length === 0) {
+        return `
+          <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+              <div class="text-4xl mb-3">📭</div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Seçilmiş filtrə uyğun sual tapılmadı</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                Kateqoriya, sual aralığı və ya «Təkrar / Səhv» filtrini dəyişərək yenidən cəhd edin.
+              </p>
+              <button
+                id="empty-reset-btn"
+                type="button"
+                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer"
+              >
+                Bütün filtrləri göstər
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.cardIndex >= cards.length) {
+        state.cardIndex = 0;
+      }
+
+      const current = cards[state.cardIndex];
+      const isLearned = state.progress.learnedIds.includes(current.id);
+      const isMistake = state.progress.mistakeIds.includes(current.id);
+
+      return `
+        <div class="max-w-3xl w-full mx-auto px-4 sm:px-6 py-6 flex-1 flex flex-col justify-center">
+          <!-- Top Card Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                Kart ${state.cardIndex + 1} / ${cards.length}
+              </span>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/60">
+                Sual № ${current.id}
+              </span>
+              ${
+                isLearned
+                  ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">✓ Öyrənilib</span>`
+                  : isMistake
+                  ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">! Təkrar</span>`
+                  : ""
+              }
+            </div>
+
+            <button
+              id="shuffle-cards-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                state.shuffleCards
+                  ? "bg-indigo-600 text-white border-indigo-700 shadow-sm"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }"
+            >
+              <span>🔀</span>
+              <span>${state.shuffleCards ? "Qarışıq sıra aktivdir" : "Kartları qarışdır"}</span>
+            </button>
+          </div>
+
+          <!-- 3D Flip Flashcard -->
+          <div class="perspective-1200 w-full min-h-[300px] sm:min-h-[340px]">
+            <div
+              id="flashcard-inner"
+              role="button"
+              tabindex="0"
+              aria-label="Kartı çevirmək üçün klikləyin"
+              class="relative w-full min-h-[300px] sm:min-h-[340px] preserve-3d card-transition cursor-pointer ${
+                state.isFlipped ? "rotate-y-180" : ""
+              }"
+            >
+              <!-- Front: Question -->
+              <div class="backface-hidden absolute inset-0 w-full h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-md flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                    ${escapeHtml(current.cat)}
+                  </span>
+                  <span class="text-xs font-medium text-slate-400 dark:text-slate-500">
+                    SUAL
+                  </span>
+                </div>
+
+                <div class="my-auto py-4 text-center">
+                  <p class="text-lg sm:text-2xl font-bold leading-snug text-slate-900 dark:text-white">
+                    ${escapeHtml(current.q)}
+                  </p>
+                </div>
+
+                <div class="text-center text-xs font-medium text-slate-400 dark:text-slate-500">
+                  Cavabı görmək üçün karta klikləyin və ya <kbd class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono">Space</kbd> basın
+                </div>
+              </div>
+
+              <!-- Back: Answer -->
+              <div class="backface-hidden rotate-y-180 absolute inset-0 w-full h-full bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-blue-100/90">
+                    Sual № ${current.id} • ${escapeHtml(current.cat)}
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/15 text-white">
+                    CAVAB
+                  </span>
+                </div>
+
+                <div class="my-auto py-4 text-center">
+                  <p class="text-xl sm:text-2xl font-extrabold leading-relaxed text-white">
+                    ${escapeHtml(current.a)}
+                  </p>
+                </div>
+
+                <div class="text-center text-xs font-medium text-blue-100/80">
+                  Suala qayıtmaq üçün yenidən klikləyin
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Marking Actions -->
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              id="mark-hard-btn"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold border transition-all cursor-pointer ${
+                isMistake
+                  ? "bg-amber-500 text-white border-amber-600 shadow-sm"
+                  : "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-950/70"
+              }"
+            >
+              <span>⚠️</span>
+              <span>Çətindir / Yenidən təkrar et</span>
+            </button>
+
+            <button
+              id="mark-learned-btn"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold border transition-all cursor-pointer ${
+                isLearned
+                  ? "bg-emerald-600 text-white border-emerald-700 shadow-sm"
+                  : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/70"
+              }"
+            >
+              <span>✓</span>
+              <span>Öyrənildi kimi işarələ</span>
+            </button>
+          </div>
+
+          <!-- Previous / Flip / Next Navigation -->
+          <div class="mt-3 flex items-center justify-between gap-3">
+            <button
+              id="prev-card-btn"
+              type="button"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <span>←</span>
+              <span>Əvvəlki</span>
+            </button>
+
+            <button
+              id="flip-card-btn"
+              type="button"
+              class="px-5 py-3 rounded-2xl text-sm font-bold bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              ${state.isFlipped ? "Sualı göstər" : "Cavabı çevir"}
+            </button>
+
+            <button
+              id="next-card-btn"
+              type="button"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <span>Növbəti</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuizMode() {
+      if (!state.quizQuestion || state.quizOptions.length === 0) {
+        buildQuizQuestion();
+      }
+
+      if (!state.quizQuestion) {
+        return `
+          <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+              <div class="text-4xl mb-3">📝</div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Test üçün uyğun sual tapılmadı</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                Seçilmiş filtrdə cavablı sual yoxdur. Filtrləri sıfırlayın və yenidən yoxlayın.
+              </p>
+              <button
+                id="empty-reset-btn"
+                type="button"
+                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer"
+              >
+                Bütün filtrləri göstər
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const q = state.quizQuestion;
+      const answeredCount = state.progress.quizStats.answered;
+      const correctCount = state.progress.quizStats.correct;
+      const letters = ["A", "B", "C", "D"];
+
+      return `
+        <div class="max-w-3xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+          <!-- Quiz Score Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4 px-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                Sual № ${q.id}
+              </span>
+              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                ${escapeHtml(q.cat)}
+              </span>
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
+              Düzgün: <span class="text-emerald-600 dark:text-emerald-400">${correctCount}</span> / ${answeredCount}
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-bold leading-snug text-slate-900 dark:text-white mb-6">
+              ${escapeHtml(q.q)}
+            </h2>
+
+            <!-- Options -->
+            <div class="space-y-3">
+              ${state.quizOptions
+                .map((opt, idx) => {
+                  const isSelected = state.quizSelectedOption === opt;
+                  const isCorrectOpt = opt === q.a;
+                  const hasAnswered = state.quizSelectedOption !== null;
+
+                  let btnClass =
+                    "bg-slate-50 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100";
+
+                  let badgeClass =
+                    "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700";
+
+                  if (hasAnswered) {
+                    if (isCorrectOpt) {
+                      btnClass =
+                        "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500";
+                      badgeClass =
+                        "bg-emerald-600 text-white border-emerald-600";
+                    } else if (isSelected && !isCorrectOpt) {
+                      btnClass =
+                        "bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-950 dark:text-rose-100 ring-1 ring-rose-500";
+                      badgeClass =
+                        "bg-rose-600 text-white border-rose-600";
+                    } else {
+                      btnClass =
+                        "bg-slate-50/60 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-800 text-slate-400 dark:text-slate-500 opacity-75";
+                    }
+                  }
+
+                  return `
+                    <button
+                      type="button"
+                      data-quiz-option="${escapeHtml(opt)}"
+                      ${hasAnswered ? "disabled" : ""}
+                      class="quiz-option-btn w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${btnClass} ${
+                        hasAnswered ? "cursor-default" : "cursor-pointer"
+                      }"
+                    >
+                      <span class="w-7 h-7 rounded-xl border text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 ${badgeClass}">
+                        ${letters[idx] || idx + 1}
+                      </span>
+                      <span class="text-sm sm:text-base font-semibold leading-snug flex-1">
+                        ${escapeHtml(opt)}
+                      </span>
+                      ${
+                        hasAnswered && isCorrectOpt
+                          ? `<span class="text-emerald-600 dark:text-emerald-400 font-extrabold text-base shrink-0">✓</span>`
+                          : hasAnswered && isSelected && !isCorrectOpt
+                          ? `<span class="text-rose-600 dark:text-rose-400 font-extrabold text-base shrink-0">✕</span>`
+                          : ""
+                      }
+                    </button>
+                  `;
+                })
+                .join("")}
+            </div>
+
+            <!-- Feedback & Next Button -->
+            ${
+              state.quizSelectedOption !== null
+                ? `
+                  <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      ${
+                        state.quizIsCorrect
+                          ? `<div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">✓ Doğru cavab! Sual öyrənilmiş kimi qeyd olundu.</div>`
+                          : `<div class="text-sm font-bold text-rose-600 dark:text-rose-400">✕ Səhv cavab! Sual «Təkrar / Səhv» siyahısına əlavə olundu.</div>
+                             <div class="text-xs text-slate-600 dark:text-slate-300 mt-1">Doğru cavab: <strong>${escapeHtml(q.a)}</strong></div>`
+                      }
+                    </div>
+
+                    <button
+                      id="next-quiz-btn"
+                      type="button"
+                      class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors cursor-pointer shrink-0"
+                    >
+                      <span>Növbəti sual</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                `
+                : `
+                  <div class="mt-6 flex justify-end">
+                    <button
+                      id="skip-quiz-btn"
+                      type="button"
+                      class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                      Bu sualı keç →
+                    </button>
+                  </div>
+                `
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBrowseMode() {
+      const items = getFilteredQuestions(false);
+
+      if (items.length === 0) {
+        return `
+          <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+              <div class="text-4xl mb-3">🔎</div>
+              <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Axtarışa uyğun sual tapılmadı</h2>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                Açar sözü və ya filtrləri dəyişərək yenidən yoxlayın.
+              </p>
+              <button
+                id="empty-reset-btn"
+                type="button"
+                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors cursor-pointer"
+              >
+                Bütün filtrləri göstər
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div class="text-sm font-semibold text-slate-600 dark:text-slate-300">
+              Siyahıda <span class="font-extrabold text-slate-900 dark:text-white">${items.length}</span> sual göstərilir
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                id="expand-all-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Hamısının cavabını aç
+              </button>
+              <button
+                id="collapse-all-btn"
+                type="button"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Hamısını gizlət
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            ${items
+              .map((item) => {
+                const isOpen = !!state.expandedBrowseIds[item.id];
+                const isLearned = state.progress.learnedIds.includes(item.id);
+                const isMistake = state.progress.mistakeIds.includes(item.id);
+
+                return `
+                  <article class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-sm transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div class="flex items-start gap-3 flex-1">
+                        <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0 mt-0.5">
+                          № ${item.id}
+                        </span>
+                        <div>
+                          <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                            <span class="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                              ${escapeHtml(item.cat)}
+                            </span>
+                            ${
+                              isLearned
+                                ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Öyrənilib</span>`
+                                : ""
+                            }
+                            ${
+                              isMistake
+                                ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">Təkrar</span>`
+                                : ""
+                            }
+                          </div>
+                          <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
+                            ${escapeHtml(item.q)}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center gap-2 shrink-0 sm:ml-2">
+                        <button
+                          type="button"
+                          data-toggle-review="${item.id}"
+                          title="Təkrar siyahısına əlavə et / çıxar"
+                          class="browse-review-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
+                            isMistake
+                              ? "bg-amber-500 text-white border-amber-600"
+                              : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                          }"
+                        >
+                          ⚠️
+                        </button>
+                        <button
+                          type="button"
+                          data-toggle-answer="${item.id}"
+                          class="browse-answer-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                            isOpen
+                              ? "bg-blue-600 text-white"
+                              : "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60"
+                          }"
+                        >
+                          ${isOpen ? "Cavabı gizlət" : "Cavabı göstər"}
+                        </button>
+                      </div>
+                    </div>
+
+                    ${
+                      isOpen
+                        ? `
+                          <div class="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50/60 dark:bg-emerald-950/25 rounded-xl p-3.5">
+                            <div class="text-sm font-bold text-emerald-950 dark:text-emerald-200">
+                              <span class="text-xs uppercase tracking-wider font-extrabold text-emerald-700 dark:text-emerald-400 mr-1.5">Cavab:</span>
+                              ${escapeHtml(item.a)}
+                            </div>
+                            <button
+                              type="button"
+                              data-mark-learned-browse="${item.id}"
+                              class="browse-learned-btn self-start sm:self-center px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer shrink-0"
+                            >
+                              ✓ Öyrənildi
+                            </button>
+                          </div>
+                        `
+                        : ""
+                    }
+                  </article>
+                `;
+              })
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderToast() {
+      if (!state.toast) return "";
+      const colors =
+        state.toast.type === "success"
+          ? "bg-emerald-600 text-white"
+          : state.toast.type === "warning"
+          ? "bg-amber-600 text-white"
+          : "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900";
+
+      return `
+        <div class="fixed bottom-5 right-5 z-50 max-w-sm">
+          <div class="px-4 py-3 rounded-2xl shadow-lg text-xs sm:text-sm font-semibold ${colors}">
+            ${escapeHtml(state.toast.message)}
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      const appEl = document.getElementById("app");
+      const filtered = getFilteredQuestions(false);
+
+      let modeContent = "";
+      if (state.mode === "flashcards") {
+        modeContent = renderFlashcardsMode();
+      } else if (state.mode === "quiz") {
+        modeContent = renderQuizMode();
+      } else {
+        modeContent = renderBrowseMode();
+      }
+
+      appEl.innerHTML = `
+        ${renderHeader()}
+        ${renderFilters(filtered.length)}
+        <main class="flex-1 flex flex-col">
+          ${modeContent}
+        </main>
+        <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+          İctimai-siyasi hazırlıq test materialları əsasında hazırlanmış tədris və özünü yoxlama proqramı.
+        </footer>
+        ${renderToast()}
+      `;
+
+      bindEvents();
+    }
+
+    function resetAllFilters() {
+      state.category = "Hamısı";
+      state.range = "all";
+      state.onlyReview = false;
+      state.searchQuery = "";
+      state.cardIndex = 0;
+      state.isFlipped = false;
+      if (state.shuffleCards) generateShuffledOrder();
+      if (state.mode === "quiz") buildQuizQuestion();
+      render();
+    }
+
+    function bindEvents() {
+      // Mode buttons
+      document.getElementById("mode-flashcards")?.addEventListener("click", () => {
+        state.mode = "flashcards";
+        state.cardIndex = 0;
+        state.isFlipped = false;
+        if (state.shuffleCards) generateShuffledOrder();
+        render();
+      });
+
+      document.getElementById("mode-quiz")?.addEventListener("click", () => {
+        state.mode = "quiz";
+        buildQuizQuestion();
+        render();
+      });
+
+      document.getElementById("mode-browse")?.addEventListener("click", () => {
+        state.mode = "browse";
+        render();
+      });
+
+      document.getElementById("reset-progress-btn")?.addEventListener("click", () => {
+        resetProgress();
+      });
+
+      // Filter controls
+      document.getElementById("filter-category")?.addEventListener("change", (e) => {
+        state.category = e.target.value;
+        state.cardIndex = 0;
+        state.isFlipped = false;
+        if (state.shuffleCards) generateShuffledOrder();
+        if (state.mode === "quiz") buildQuizQuestion();
+        render();
+      });
+
+      document.getElementById("filter-range")?.addEventListener("change", (e) => {
+        state.range = e.target.value;
+        state.cardIndex = 0;
+        state.isFlipped = false;
+        if (state.shuffleCards) generateShuffledOrder();
+        if (state.mode === "quiz") buildQuizQuestion();
+        render();
+      });
+
+      const searchInput = document.getElementById("filter-search");
+      searchInput?.addEventListener("input", (e) => {
+        state.searchQuery = e.target.value;
+        state.cardIndex = 0;
+        state.isFlipped = false;
+        render();
+        // Restore focus and caret position after re-render
+        const restored = document.getElementById("filter-search");
+        if (restored) {
+          restored.focus();
+          const len = restored.value.length;
+          restored.setSelectionRange(len, len);
+        }
+      });
+
+      document.getElementById("clear-search-btn")?.addEventListener("click", () => {
+        state.searchQuery = "";
+        state.cardIndex = 0;
+        render();
+      });
+
+      document.getElementById("toggle-review-filter")?.addEventListener("click", () => {
+        state.onlyReview = !state.onlyReview;
+        state.cardIndex = 0;
+        state.isFlipped = false;
+        if (state.shuffleCards) generateShuffledOrder();
+        if (state.mode === "quiz") buildQuizQuestion();
+        render();
+      });
+
+      document.getElementById("clear-all-filters")?.addEventListener("click", resetAllFilters);
+      document.getElementById("empty-reset-btn")?.addEventListener("click", resetAllFilters);
+
+      // Flashcard events
+      const cards = getOrderedFlashcards();
+      const currentCard = cards[state.cardIndex];
+
+      document.getElementById("shuffle-cards-btn")?.addEventListener("click", () => {
+        state.shuffleCards = !state.shuffleCards;
+        if (state.shuffleCards) {
+          generateShuffledOrder();
+          showToast("Kartlar təsadüfi sıraya düzüldü", "info");
+        } else {
+          state.cardIndex = 0;
+          state.isFlipped = false;
+          showToast("Ardıcıl sıra bərpa olundu", "info");
+        }
+        render();
+      });
+
+      const flipAction = () => {
+        state.isFlipped = !state.isFlipped;
+        render();
+      };
+
+      document.getElementById("flashcard-inner")?.addEventListener("click", flipAction);
+      document.getElementById("flashcard-inner")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          flipAction();
+        }
+      });
+      document.getElementById("flip-card-btn")?.addEventListener("click", flipAction);
+
+      document.getElementById("prev-card-btn")?.addEventListener("click", () => {
+        if (cards.length === 0) return;
+        state.cardIndex = (state.cardIndex - 1 + cards.length) % cards.length;
+        state.isFlipped = false;
+        render();
+      });
+
+      document.getElementById("next-card-btn")?.addEventListener("click", () => {
+        if (cards.length === 0) return;
+        state.cardIndex = (state.cardIndex + 1) % cards.length;
+        state.isFlipped = false;
+        render();
+      });
+
+      if (currentCard) {
+        document.getElementById("mark-hard-btn")?.addEventListener("click", () => {
+          markCardHard(currentCard.id);
+          render();
+        });
+
+        document.getElementById("mark-learned-btn")?.addEventListener("click", () => {
+          markCardLearned(currentCard.id);
+          if (cards.length > 1) {
+            state.cardIndex = (state.cardIndex + 1) % cards.length;
+            state.isFlipped = false;
+          }
+          render();
+        });
+      }
+
+      // Quiz events
+      document.querySelectorAll(".quiz-option-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const val = btn.getAttribute("data-quiz-option");
+          if (val !== null) {
+            handleSelectQuizOption(val);
+          }
+        });
+      });
+
+      document.getElementById("next-quiz-btn")?.addEventListener("click", () => {
+        buildQuizQuestion();
+        render();
+      });
+
+      document.getElementById("skip-quiz-btn")?.addEventListener("click", () => {
+        buildQuizQuestion();
+        render();
+      });
+
+      // Browse mode events
+      document.getElementById("expand-all-btn")?.addEventListener("click", () => {
+        const list = getFilteredQuestions(false);
+        const nextMap = { ...state.expandedBrowseIds };
+        list.forEach((item) => {
+          nextMap[item.id] = true;
+        });
+        state.expandedBrowseIds = nextMap;
+        render();
+      });
+
+      document.getElementById("collapse-all-btn")?.addEventListener("click", () => {
+        const list = getFilteredQuestions(false);
+        const nextMap = { ...state.expandedBrowseIds };
+        list.forEach((item) => {
+          delete nextMap[item.id];
+        });
+        state.expandedBrowseIds = nextMap;
+        render();
+      });
+
+      document.querySelectorAll(".browse-answer-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-toggle-answer"));
+          state.expandedBrowseIds[id] = !state.expandedBrowseIds[id];
+          render();
+        });
+      });
+
+      document.querySelectorAll(".browse-review-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-toggle-review"));
+          toggleReviewStatus(id);
+        });
+      });
+
+      document.querySelectorAll(".browse-learned-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-mark-learned-browse"));
+          markCardLearned(id);
+          render();
+        });
+      });
+    }
+
+    // Global keyboard shortcuts for flashcards & quiz
+    document.addEventListener("keydown", (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "select" || tag === "textarea") return;
+
+      if (state.mode === "flashcards") {
+        const cards = getOrderedFlashcards();
+        if (cards.length === 0) return;
+
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          state.cardIndex = (state.cardIndex + 1) % cards.length;
+          state.isFlipped = false;
+          render();
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          state.cardIndex = (state.cardIndex - 1 + cards.length) % cards.length;
+          state.isFlipped = false;
+          render();
+        } else if (e.key === " ") {
+          e.preventDefault();
+          state.isFlipped = !state.isFlipped;
+          render();
+        }
+      } else if (state.mode === "quiz" && state.quizSelectedOption !== null) {
+        if (e.key === "Enter" || e.key === "ArrowRight") {
+          e.preventDefault();
+          buildQuizQuestion();
+          render();
+        }
+      }
+    });
+
+    // Initial render
+    buildQuizQuestion();
+    render();
+  </script>
+</body>
+</html>
